@@ -9,7 +9,10 @@ namespace SharedModels
         public int? Age { get; set; }
         public string? EmailAddress { get; set; }
         public Address Address { get; set; } = new();
+
+        public Pet Pet { get; set; } = new();
     }
+    
 
     public class PersonValidator : AbstractValidator<Person>
     {
@@ -25,6 +28,8 @@ namespace SharedModels
                 .NotEmpty().WithMessage("You must enter your last name")
                 .MaximumLength(50).WithMessage("Last name cannot be longer than 50 characters");
             });
+
+            RuleFor(p => p.Pet.Type).NotNull().WithMessage("Must have a pet type");
 
             RuleFor(p => p.Age)
                 .NotNull().WithMessage("You must enter your age")

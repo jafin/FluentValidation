@@ -62,6 +62,14 @@
         <InputText @bind-Value="@_person.Address.Postcode" />
         <ValidationMessage For="@(() => _person.Address.Postcode)" />
     </p>
+    
+    <h3>Pet</h3>
+    <p>
+        <label>Pet Type:</label>
+        <span>Validate child inline rules</span>
+        <InputText  @bind-Value="@_person.Pet.Type" />
+        <ValidationMessage For="@(() => _person.Pet.Type)" />
+    </p>
 
     <button type="submit">Save</button>
 
