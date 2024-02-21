@@ -34,11 +34,11 @@ internal static class PropertyPathHelper
             
             var nonPrimitiveProperties = currentModelObject?.GetType()
                 .GetProperties()
-                .Where(prop => !prop.PropertyType.IsPrimitive || prop.PropertyType.IsArray) ?? new List<PropertyInfo>();
+                .Where(prop =>  !prop.PropertyType.IsSimpleType() || prop.PropertyType.IsArray) ?? new List<PropertyInfo>();
 
             foreach (var nonPrimitiveProperty in nonPrimitiveProperties)
             {
-                var instance = nonPrimitiveProperty.GetValue(currentModelObject);
+                 var instance = nonPrimitiveProperty.GetValue(currentModelObject);
 
                 if (instance == fieldIdentifier.Model)
                 {
