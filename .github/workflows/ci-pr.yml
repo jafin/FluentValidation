@@ -9,6 +9,9 @@ env:
     PROJECT_NAME: Blazored.FluentValidation
     NETCORE_VERSION: '8.0.x'
     DOTNET_CONSOLE_ANSI_COLOR: true
+    #ref https://github.com/dotnet/command-line-api/issues/1710
+    DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
+    TERM: xterm
 
 jobs:
   build:
