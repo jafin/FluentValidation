@@ -8,6 +8,7 @@ on:
 env:
     PROJECT_NAME: Blazored.FluentValidation
     NETCORE_VERSION: '8.0.x'
+    DOTNET_CONSOLE_ANSI_COLOR: true
 
 jobs:
   build:
