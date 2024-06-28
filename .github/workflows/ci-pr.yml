@@ -28,4 +28,4 @@ jobs:
       run: dotnet build --configuration Release --no-restore src/$PROJECT_NAME/$PROJECT_NAME.csproj
 
     - name: Running tests...
-      run: dotnet test --verbosity normal      
+      run: dotnet test 
