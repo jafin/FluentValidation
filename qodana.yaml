@@ -11,7 +11,9 @@ version: "1.0"
 profile:
   name: qodana.recommended
 
-linter: jetbrains/qodana-dotnet:latest
+#jetbrains/qodana-dotnet:latest is not in open source edition
+#linter: jetbrains/qodana-dotnet:latest
+#linter: 
 
 #Enable inspections
 #include:
