@@ -22,7 +22,7 @@ internal static class PropertyPathHelper
             ModelObject = editContext.Model,
         });
 
-        while (nodes.Any())
+        while (nodes.Count > 0)
         {
             var currentNode = nodes.Pop();
             var currentModelObject = currentNode.ModelObject;
