@@ -17,9 +17,9 @@ internal static class PropertyPathHelper
     public static string ToFluentPropertyPath(EditContext editContext, FieldIdentifier fieldIdentifier)
     {
         var nodes = new Stack<Node>();
-        nodes.Push(new Node()
+        nodes.Push(new Node
         {
-            ModelObject = editContext.Model,
+            ModelObject = editContext.Model
         });
 
         while (nodes.Count > 0)
@@ -42,7 +42,7 @@ internal static class PropertyPathHelper
 
                 if (instance == fieldIdentifier.Model)
                 {
-                    var node = new Node()
+                    var node = new Node
                     {
                         Parent = currentNode,
                         PropertyName = nonPrimitiveProperty.Name,
@@ -57,7 +57,7 @@ internal static class PropertyPathHelper
                     var itemIndex = 0;
                     foreach (var item in enumerable)
                     {
-                        nodes.Push(new Node()
+                        nodes.Push(new Node
                         {
                             ModelObject = item,
                             Parent = currentNode,
@@ -68,7 +68,7 @@ internal static class PropertyPathHelper
                 }
                 else if(instance is not null)
                 {
-                    nodes.Push(new Node()
+                    nodes.Push(new Node
                     {
                         ModelObject = instance,
                         Parent = currentNode,
@@ -83,22 +83,14 @@ internal static class PropertyPathHelper
     
     private static string BuildPropertyPath(Node currentNode, FieldIdentifier fieldIdentifier)
     {
-        var pathParts = new List<string>();
-        pathParts.Add(fieldIdentifier.FieldName);
+        var pathParts = new List<string> { fieldIdentifier.FieldName };
         var next = currentNode;
 
         while (next is not null)
         {
             if (!string.IsNullOrEmpty(next.PropertyName))
             {
-                if (next.Index is not null)
-                {
-                    pathParts.Add($"{next.PropertyName}[{next.Index}]");
-                }
-                else
-                {
-                    pathParts.Add(next.PropertyName);
-                }
+                pathParts.Add(next.Index is not null ? $"{next.PropertyName}[{next.Index}]" : next.PropertyName);
             }
 
             next = next.Parent;

@@ -199,8 +199,8 @@ public static class EditContextFluentValidationExtensions
 
         while (true)
         {
-            var nextToken = propertyPathAsSpan.Slice(0, nextTokenEnd);
-            propertyPathAsSpan = propertyPathAsSpan.Slice(nextTokenEnd + 1);
+            var nextToken = propertyPathAsSpan[..nextTokenEnd];
+            propertyPathAsSpan = propertyPathAsSpan[(nextTokenEnd + 1)..];
 
             object? newObj;
             if (nextToken.EndsWith("]"))

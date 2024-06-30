@@ -7,7 +7,7 @@ namespace Blazored.FluentValidation;
 /// </summary>
 public static class TypeExtensions
 {
-    static readonly ConcurrentDictionary<Type, bool> IsSimpleTypeCache = new();
+    private static readonly ConcurrentDictionary<Type, bool> IsSimpleTypeCache = new();
 
     /// <summary>
     /// Determines if a given Type is considered a simple type.
@@ -19,7 +19,7 @@ public static class TypeExtensions
     /// </returns>
     public static bool IsSimpleType(this Type type)
     {
-        return IsSimpleTypeCache.GetOrAdd(type, t =>
+        return IsSimpleTypeCache.GetOrAdd(type, _ =>
             type.IsPrimitive ||
             type.IsEnum ||
             type == typeof(string) ||
