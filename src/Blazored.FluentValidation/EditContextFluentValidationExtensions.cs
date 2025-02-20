@@ -197,64 +197,20 @@ public static class EditContextFluentValidationExtensions
             return new FieldIdentifier(obj, propertyPath);
         }
 
+        return TraversePropertyPath(propertyPath, obj);
+    }
+
+    private static FieldIdentifier TraversePropertyPath(string propertyPath, object obj)
+    {
         ReadOnlySpan<char> propertyPathAsSpan = propertyPath;
+        var nextTokenEnd = propertyPath.IndexOfAny(Separators);
 
         while (true)
         {
-            var nextToken = propertyPathAsSpan.Slice(0, nextTokenEnd);
-            propertyPathAsSpan = propertyPathAsSpan.Slice(nextTokenEnd + 1);
+            var nextToken = propertyPathAsSpan[..nextTokenEnd];
+            propertyPathAsSpan = propertyPathAsSpan[(nextTokenEnd + 1)..];
 
-            object? newObj;
-            if (nextToken.EndsWith("]"))
-            {
-                // It's an indexer
-                // This code assumes C# conventions (one indexer named Item with one param)
-                nextToken = nextToken.Slice(0, nextToken.Length - 1);
-                var prop = obj.GetType().GetProperty("Item");
-
-                if (prop is not null)
-                {
-                    // we've got an Item property
-                    var indexerType = prop.GetIndexParameters()[0].ParameterType;
-                    var indexerValue = Convert.ChangeType(nextToken.ToString(), indexerType);
-
-                    newObj = prop.GetValue(obj, new[] { indexerValue });
-                }
-                else
-                {
-                    // If there is no Item property
-                    // Try to cast the object to array
-                    if (obj is object[] array)
-                    {
-                        var indexerValue = int.Parse(nextToken);
-                        newObj = array[indexerValue];
-                    }
-                    else if (obj is IReadOnlyList<object> readOnlyList)
-                    {
-                        // Addresses an issue with collection expressions in C# 12 regarding IReadOnlyList:
-                        // Generates a <>z__ReadOnlyArray which:
-                        // - lacks an Item property, and
-                        // - cannot be cast to object[] successfully.
-                        // This workaround accesses elements directly using an indexer.
-                        var indexerValue = int.Parse(nextToken);
-                        newObj = readOnlyList[indexerValue];
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Could not find indexer on object of type {obj.GetType().FullName}.");
-                    }
-                }
-            }
-            else
-            {
-                // It's a regular property
-                var prop = obj.GetType().GetProperty(nextToken.ToString());
-                if (prop == null)
-                {
-                    throw new InvalidOperationException($"Could not find property named {nextToken.ToString()} on object of type {obj.GetType().FullName}.");
-                }
-                newObj = prop.GetValue(obj);
-            }
+            var newObj = nextToken.EndsWith("]") ? HandleIndexer(obj, nextToken) : HandleRegularProperty(obj, nextToken);
 
             if (newObj == null)
             {
@@ -263,12 +219,62 @@ public static class EditContextFluentValidationExtensions
             }
 
             obj = newObj;
-
+                
             nextTokenEnd = propertyPathAsSpan.IndexOfAny(Separators);
             if (nextTokenEnd < 0)
             {
                 return new FieldIdentifier(obj, propertyPathAsSpan.ToString());
             }
         }
+    }
+
+    private static object? HandleRegularProperty(object obj, ReadOnlySpan<char> nextToken)
+    {
+        // It's a regular property
+        var prop = obj.GetType().GetProperty(nextToken.ToString());
+        if (prop == null)
+        {
+            throw new InvalidOperationException($"Could not find property named {nextToken.ToString()} on object of type {obj.GetType().FullName}.");
+        }
+        var newObj = prop.GetValue(obj);
+        return newObj;
+    }
+
+    private static object? HandleIndexer(object obj, ReadOnlySpan<char> nextToken)
+    {
+        object? newObj;
+        // It's an indexer
+        // This code assumes C# conventions (one indexer named Item with one param)
+        nextToken = nextToken.Slice(0, nextToken.Length - 1);
+        var prop = obj.GetType().GetProperty("Item");
+
+        if (prop is not null)
+        {
+            // we've got an Item property
+            var indexerType = prop.GetIndexParameters()[0].ParameterType;
+            var indexerValue = Convert.ChangeType(nextToken.ToString(), indexerType);
+                        
+            newObj = prop.GetValue(obj, new[] { indexerValue });
+        }
+        else
+        {
+            // If there is no Item property
+            // Try to cast the object to array
+            if (obj is object[] array)
+            {
+                var indexerValue = int.Parse(nextToken);
+                newObj = array[indexerValue];
+            }
+            else if (obj is IEnumerable<object> enumerable)
+            {
+                var indexerValue = int.Parse(nextToken);
+                newObj = enumerable.ElementAt(indexerValue);
+            } else
+            {
+                throw new InvalidOperationException($"Could not find indexer on object of type {obj.GetType().FullName}.");
+            }
+        }
+
+        return newObj;
     }
 }
