@@ -1,0 +1,38 @@
+﻿@page "/Collection"
+
+<h1>Blazored FluentValidation Sample</h1>
+
+<hr class="mb-5"/>
+
+<EditForm Model="@_parent" OnValidSubmit="@SubmitValidForm">
+    <FluentValidationValidator DisableAssemblyScanning="@true" @ref="_fluentValidationValidator"/>
+    <ValidationSummary/>
+
+    @foreach (var child in _parent.Children)
+    {
+        <p>
+            <label>Child Name: </label>
+            <InputText @bind-Value="@child.FirstName"/>
+            <ValidationMessage For="@(() => child.FirstName)"/>
+        </p>
+    }
+
+    <p>
+        <button @onclick="AddChild">Add Child</button>
+        <button type="submit">Save</button>
+    </p>
+
+</EditForm>
+<br/>
+
+@code {
+    private readonly Parent _parent = new();
+    private FluentValidationValidator? _fluentValidationValidator;
+
+    private void AddChild()
+        => _parent.Children.Add(new Child());
+
+    private void SubmitValidForm()
+        => Console.WriteLine("Form Submitted Successfully!");
+
+}

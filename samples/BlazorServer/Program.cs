@@ -1,5 +1,6 @@
 using FluentValidation;
 using SharedModels;
+using SharedModels.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,9 @@ builder.Services.AddServerSideBlazor(c => c.DetailedErrors = true);
 
 builder.Services.AddTransient<IValidator<Person>, PersonValidator>();
 builder.Services.AddTransient<IValidator<Address>, AddressValidator>();
+
+builder.Services.AddTransient<IValidator<Parent>, ParentValidator>();
+builder.Services.AddTransient<IValidator<Child>, ChildValidator>();
 
 var app = builder.Build();
 
